@@ -43,6 +43,18 @@ STAGE 3 — POST-PROCESSOR
 
   [Module C-3] Bernoulli Punctuation Trial
                P(structural break) = 0.15 per sentence ending
+
+  [Module C-4] "And" Embargo (Coordination Break)
+               If sentence length > 25 words: max 1 coordinating conjunction
+               Extras replaced with em-dash or semicolon
+
+  [Module C-5] Temporal Interjection
+               Every 300 words: insert a parenthetical environmental/time
+               observation into the nearest character-action sentence
+
+  [Module C-6] Starting-Fragment Bias
+               Every 5th sentence: force opening word to be a preposition
+               or adverb (not Subject + Verb)
 ```
 
 ---
@@ -118,6 +130,52 @@ The replacement is always the **4th or 5th most likely alternative** from `top_l
 Every sentence ending gets an independent coin flip: `P = 0.15`.
 
 If it fires, the sentence is structurally transformed -- into an em-dash break, a colon introduction, or a parenthetical aside. Human prose contains these structures at roughly this frequency. Injecting them stochastically (not at fixed intervals) replicates that distribution without creating its own detectable pattern.
+
+### C-4: The "And" Embargo (Coordination Break)
+
+This sub-routine targets the 7% "smoothness" alarm — the score AI detectors assign when sentence rhythm is too clean. Long sentences are the primary trigger. A sentence of 25+ words joined by repeated "and" / "but" connectors is almost always machine-generated: AI defaults to compound structures because they are the highest-probability continuation at each token step.
+
+**The rule:** If a sentence exceeds 25 words, it may contain at most one coordinating conjunction (and, but, or, nor, for, yet, so). Every additional conjunction is replaced with an em-dash or semicolon by a targeted LLM rewrite pass.
+
+```
+Before (AI): "He went to the meeting and he presented the data and the board approved it."
+After:       "He went to the meeting, presented the data — the board approved it before he finished."
+```
+
+The effect is structural compression. The sentence carries the same information but the rhythm breaks where AI would have smoothed it.
+
+### C-5: Temporal Interjection (Parenthetical Jitter)
+
+AI explains things in a straight line. Cause follows effect. Action follows thought. No human writes this way for long — memory intrudes, the environment presses in, a detail surfaces at an inconvenient moment.
+
+**The rule:** Every 300 words, the nearest sentence containing a character action verb (opened, walked, typed, called, entered) receives a parenthetical interjection. The parenthetical must reference the immediate environment or the passage of time — not the subject matter of the sentence.
+
+```
+Before: "She opened the laptop and logged in."
+After:  "She opened the laptop (the hinges creaked, a reminder of how old the hardware was) and logged in."
+```
+
+This is not decoration. It is a structural marker of human attention. People notice things. The parenthetical inserts the evidence of that noticing.
+
+Implementation: the algorithm scans the output in 300-word windows, identifies the first action-verb sentence in each window, and passes it to the LLM with a system instruction specifying the interjection type (environmental detail, time marker, or sensory aside). The insertion point is always before the second clause — never at the sentence's opening.
+
+### C-6: Starting-Fragment Bias
+
+AI almost always opens sentences with Subject + Verb. The subject is named, then it acts. This is the structurally safest pattern for an LLM to predict — and therefore the most detectable.
+
+**The rule:** For every 5 sentences in the output, at least one must begin with a preposition or an adverb, not a subject noun or pronoun.
+
+Valid openers: At, By, In, Under, Above, Across, Through, Slowly, High above, Deep inside, Without warning, Against the wall.
+
+```
+Before: "The results came back three weeks later."
+After:  "Three weeks later, the results came back."
+
+Before: "She pushed the door open carefully."
+After:  "Carefully, she pushed the door open."
+```
+
+Implementation: the algorithm walks the output in blocks of five sentences. If none of the five starts with a preposition or adverb, it selects the sentence with the most natural inversion candidate and rewrites its opening via LLM. The rewrite instruction specifies that word order must change — not vocabulary. This preserves the log-prob swap work already done in C-2.
 
 ---
 
