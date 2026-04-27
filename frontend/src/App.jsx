@@ -8,26 +8,10 @@ import './index.css';
 function App() {
   const [result, setResult] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [loadingMsg, setLoadingMsg] = useState("");
 
   const handleProcess = async (endpoint, payload) => {
     setIsProcessing(true);
     setResult(null);
-    
-    // Cycle loading messages for the "over-the-top AI" vibe
-    const msgs = [
-      "Initializing Ornstein-Uhlenbeck sequence...",
-      "Bypassing Turnitin Global Pattern matching...",
-      "Injecting semantic jitter...",
-      "Applying Bernoulli punctuation friction...",
-      "Laundering AI signature..."
-    ];
-    let msgIdx = 0;
-    setLoadingMsg(msgs[0]);
-    const interval = setInterval(() => {
-      msgIdx = (msgIdx + 1) % msgs.length;
-      setLoadingMsg(msgs[msgIdx]);
-    }, 2500);
 
     try {
       const response = await fetch(`http://localhost:8000/api/${endpoint}`, {
@@ -49,7 +33,6 @@ function App() {
       console.error(error);
       alert(`Error: ${error.message}`);
     } finally {
-      clearInterval(interval);
       setIsProcessing(false);
     }
   };
@@ -57,28 +40,35 @@ function App() {
   return (
     <>
       <Background />
-      <div className="app-container" style={{ position: 'relative', zIndex: 10, minHeight: '100vh', padding: '3rem 1rem' }}>
-        <header style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <motion.h1 
-            className="neon-text"
-            style={{ fontSize: '3.5rem', fontFamily: 'var(--font-ui)', margin: 0, letterSpacing: '-0.02em' }}
-            initial={{ opacity: 0, y: -20 }}
+      <div className="app-container" style={{ position: 'relative', zIndex: 10, minHeight: '100vh', padding: '4rem 2rem' }}>
+        <header style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            ENTROPY ENGINE
-          </motion.h1>
-          <motion.p 
-            style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginTop: '0.5rem' }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-          >
-            Tactical Stylometric Obfuscation. <span style={{color: 'var(--secondary-neon)'}}>Break the pattern.</span>
-          </motion.p>
+            <h1 
+              className="text-gradient"
+              style={{ fontSize: '4.5rem', margin: 0, lineHeight: 1.1, letterSpacing: '-0.04em' }}
+            >
+              Entropy Engine
+            </h1>
+            <p style={{ 
+              color: 'var(--text-muted)', 
+              fontSize: '1.25rem', 
+              marginTop: '1rem',
+              fontWeight: 400,
+              letterSpacing: '-0.01em',
+              maxWidth: '600px',
+              margin: '1rem auto 0 auto'
+            }}>
+              Tactical stylometric obfuscation to bypass semantic detectors. 
+              Built for high-variance, undetectable generation.
+            </p>
+          </motion.div>
         </header>
 
-        <main style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <main style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           <Terminal onProcess={handleProcess} isProcessing={isProcessing} />
 
           <AnimatePresence>
@@ -87,24 +77,23 @@ function App() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                style={{ textAlign: 'center', padding: '2rem' }}
+                style={{ textAlign: 'center', padding: '2rem', overflow: 'hidden' }}
               >
-                <div style={{ 
-                  display: 'inline-block',
-                  padding: '1rem 2rem',
-                  borderRadius: '30px',
-                  border: '1px solid var(--primary-neon)',
-                  color: 'var(--primary-neon)',
-                  fontFamily: 'var(--font-mono)',
-                  boxShadow: '0 0 20px rgba(217, 70, 239, 0.2)'
-                }}>
-                  <motion.span
-                    animate={{ opacity: [1, 0.5, 1] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
-                  >
-                    ⚡ {loadingMsg}
-                  </motion.span>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '1rem' }}>
+                  {/* Elegant spinner */}
+                  <div style={{
+                    width: '18px',
+                    height: '18px',
+                    border: '2px solid var(--border-light)',
+                    borderTopColor: 'var(--text-main)',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
+                  <span style={{ color: 'var(--text-muted)', fontSize: '0.95rem' }}>Processing stylistic variance...</span>
                 </div>
+                <style>{`
+                  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+                `}</style>
               </motion.div>
             )}
           </AnimatePresence>

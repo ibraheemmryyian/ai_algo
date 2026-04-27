@@ -8,60 +8,69 @@ export default function Background() {
       left: 0,
       width: '100vw',
       height: '100vh',
-      zIndex: 0,
+      zIndex: -1,
       overflow: 'hidden',
       pointerEvents: 'none',
-      background: 'var(--bg-base)'
+      backgroundColor: '#000000',
     }}>
-      {/* Grid Pattern */}
+      {/* Organic Mesh Gradient blobs (Highly Blurred) */}
+      <motion.div
+        animate={{
+          x: [0, 50, -50, 0],
+          y: [0, 30, -30, 0],
+          scale: [1, 1.1, 0.9, 1],
+        }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          position: 'absolute',
+          top: '-10%',
+          left: '10%',
+          width: '50vw',
+          height: '50vw',
+          background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, rgba(0,0,0,0) 60%)', // Indigo
+          borderRadius: '50%',
+          filter: 'blur(100px)',
+        }}
+      />
+      <motion.div
+        animate={{
+          x: [0, -60, 40, 0],
+          y: [0, -40, 60, 0],
+          scale: [1, 1.2, 0.8, 1],
+        }}
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        style={{
+          position: 'absolute',
+          bottom: '-10%',
+          right: '5%',
+          width: '60vw',
+          height: '60vw',
+          background: 'radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(0,0,0,0) 60%)', // Violet
+          borderRadius: '50%',
+          filter: 'blur(120px)',
+        }}
+      />
+
+      {/* High-density dot matrix overlay for texture */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)`,
-        backgroundSize: '40px 40px',
-        transform: 'perspective(500px) rotateX(60deg) translateY(-100px) scale(3)',
-        transformOrigin: 'top center',
-        opacity: 0.5,
+        backgroundImage: `radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px)`,
+        backgroundSize: '16px 16px',
+        opacity: 0.4,
+        maskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)',
       }} />
-
-      {/* Floating Glowing Orbs */}
-      <motion.div
-        animate={{
-          x: [0, 100, -100, 0],
-          y: [0, 50, -50, 0],
-          scale: [1, 1.2, 0.8, 1],
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        style={{
-          position: 'absolute',
-          top: '20%',
-          left: '20%',
-          width: '40vw',
-          height: '40vw',
-          background: 'radial-gradient(circle, rgba(217,70,239,0.15) 0%, rgba(0,0,0,0) 70%)',
-          borderRadius: '50%',
-          filter: 'blur(60px)'
-        }}
-      />
-      <motion.div
-        animate={{
-          x: [0, -150, 50, 0],
-          y: [0, -100, 100, 0],
-          scale: [1, 1.5, 0.9, 1],
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        style={{
-          position: 'absolute',
-          bottom: '10%',
-          right: '10%',
-          width: '50vw',
-          height: '50vw',
-          background: 'radial-gradient(circle, rgba(6,182,212,0.1) 0%, rgba(0,0,0,0) 70%)',
-          borderRadius: '50%',
-          filter: 'blur(80px)'
-        }}
-      />
+      
+      {/* Gradient fade out at bottom */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        height: '40vh',
+        background: 'linear-gradient(to top, #000000 0%, transparent 100%)',
+      }} />
     </div>
   );
 }
