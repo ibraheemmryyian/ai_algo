@@ -37,6 +37,24 @@ MODES = {
         "max_words": 40,
         "tone": "vivid, human, slightly informal. Use active voice. Ground claims in real scenarios.",
     },
+    "academic": {
+        "description": "Essays, research papers, academic submissions",
+        "mu": 22,
+        "sigma": 6,
+        "kappa": 0.15,
+        "jitter_n": 9,    # prime, longer interval for formal text
+        "punct_p": 0.08,  # fewer structural breaks in academic prose
+        "min_words": 8,
+        "max_words": 45,
+        "tone": (
+            "Formal, third-person, evidence-driven. No contractions. "
+            "Hedged claims using epistemic markers (suggests, indicates, appears to, may). "
+            "Passive voice permitted at 25% maximum. Avoid first-person."
+        ),
+        # Academic mode uses stricter And Embargo threshold
+        "embargo_threshold": 20,   # words (vs default 25)
+        "fragment_bias_adverbs": False,  # prepositional openers only, no adverbs
+    },
 }
 
 # Strobe-Phase zone overrides for long-form content (2k+ words).

@@ -186,18 +186,20 @@ def run_pipeline(
     if skip_jitter:
         logger.info("Stage 3: Skipped (--no-jitter)")
         final_text = text
+        jitter_stats = {}
     else:
         logger.info(
             "Stage 3: Applying semantic jitter + punctuation friction | model=%s",
             jitter_model
         )
-        final_text = apply_jitter(client, text, mode, jitter_model=jitter_model)
+        final_text, jitter_stats = apply_jitter(client, text, mode, jitter_model=jitter_model)
         logger.info("Stage 3 complete")
 
     return {
         "text": final_text,
         "length_map": length_map,
         "stats": stats,
+        "jitter_stats": jitter_stats,
         "mode": mode,
         "target_words": target_words,
         "actual_words": len(final_text.split()),
