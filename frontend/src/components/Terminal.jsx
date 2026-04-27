@@ -14,8 +14,8 @@ export default function Terminal({ onProcess, isProcessing }) {
   const tabs = [
     { id: 'generate', label: 'Generate', icon: Layers },
     { id: 'humanize', label: 'Humanize', icon: Sparkles },
-    { id: 'upload', label: 'Smart Upload', icon: UploadCloud },
-    { id: 'tone', label: 'Tone Mimic', icon: Fingerprint },
+    { id: 'upload', label: 'Upload', icon: UploadCloud },
+    { id: 'tone', label: 'Tone Extract', icon: Fingerprint },
   ];
 
   const handleSubmit = () => {
@@ -29,18 +29,10 @@ export default function Terminal({ onProcess, isProcessing }) {
   };
 
   return (
-    <motion.div 
-      className="glass-panel"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.2 }}
-      style={{ padding: '2.5rem', position: 'relative', overflow: 'hidden' }}
-    >
-      {/* Subtle top edge highlight */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
-
+    <div className="glass-panel" style={{ padding: '3rem', position: 'relative' }}>
+      
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border-light)', paddingBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '2rem', marginBottom: '3rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '1rem' }}>
         {tabs.map(t => (
           <button
             key={t.id}
@@ -48,29 +40,32 @@ export default function Terminal({ onProcess, isProcessing }) {
             style={{ 
               background: 'transparent',
               border: 'none',
-              color: activeTab === t.id ? 'var(--text-main)' : 'var(--text-muted)',
-              padding: '0.5rem',
+              color: activeTab === t.id ? 'var(--primary)' : 'var(--text-muted)',
+              padding: '0.5rem 0',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              fontWeight: activeTab === t.id ? '500' : '400',
+              fontWeight: activeTab === t.id ? '800' : '400',
+              fontSize: '1.1rem',
               position: 'relative',
-              transition: 'color 0.2s ease'
+              transition: 'all 0.3s ease',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em'
             }}
           >
-            <t.icon size={16} style={{ opacity: activeTab === t.id ? 1 : 0.6 }} />
+            <t.icon size={18} style={{ opacity: activeTab === t.id ? 1 : 0.6 }} />
             {t.label}
             {activeTab === t.id && (
               <motion.div 
-                layoutId="activeTabIndicator"
+                layoutId="activeTabIndicator3D"
                 style={{
                   position: 'absolute',
                   bottom: '-17px',
                   left: 0,
                   right: 0,
-                  height: '2px',
-                  background: 'var(--text-main)',
-                  borderRadius: '2px 2px 0 0'
+                  height: '3px',
+                  background: 'var(--primary)',
+                  boxShadow: '0 0 10px var(--primary)'
                 }}
               />
             )}
@@ -79,19 +74,19 @@ export default function Terminal({ onProcess, isProcessing }) {
       </div>
 
       {/* Content */}
-      <div style={{ minHeight: '220px' }}>
+      <div style={{ minHeight: '220px', transform: 'translateZ(10px)', transformStyle: 'preserve-3d' }}>
         <AnimatePresence mode="wait">
           {activeTab === 'generate' && (
             <motion.div 
               key="generate"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              transition={{ duration: 0.2 }}
-              style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}
+              initial={{ opacity: 0, rotateX: -10 }}
+              animate={{ opacity: 1, rotateX: 0 }}
+              exit={{ opacity: 0, rotateX: 10 }}
+              transition={{ duration: 0.3 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}
             >
               <div>
-                <label style={{ display: 'block', marginBottom: '0.75rem', color: 'var(--text-dim)', fontWeight: 500, fontSize: '0.9rem' }}>TOPIC INSTRUCTION</label>
+                <label style={{ display: 'block', marginBottom: '1rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '0.1em' }}>INSTRUCTION VECTOR</label>
                 <textarea 
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
@@ -101,25 +96,20 @@ export default function Terminal({ onProcess, isProcessing }) {
                   style={{ resize: 'vertical', minHeight: '100px' }}
                 />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.75rem', color: 'var(--text-dim)', fontWeight: 500, fontSize: '0.9rem' }}>STYLOMETRIC MODE</label>
-                  <div style={{ position: 'relative' }}>
-                    <select value={mode} onChange={(e) => setMode(e.target.value)} disabled={isProcessing} style={{ appearance: 'none' }}>
-                      <option value="pulse">Pulse (Short, bursty)</option>
-                      <option value="narrative">Narrative (Varied pacing)</option>
-                      <option value="scholar">Scholar (Dense logic)</option>
-                      <option value="academic">Academic (Formal, strict)</option>
-                    </select>
-                    <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-muted)' }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                    </div>
-                  </div>
+                  <label style={{ display: 'block', marginBottom: '1rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '0.1em' }}>STYLOMETRIC PROFILE</label>
+                  <select value={mode} onChange={(e) => setMode(e.target.value)} disabled={isProcessing}>
+                    <option value="pulse">Pulse (Short, bursty)</option>
+                    <option value="narrative">Narrative (Varied pacing)</option>
+                    <option value="scholar">Scholar (Dense logic)</option>
+                    <option value="academic">Academic (Formal, strict)</option>
+                  </select>
                 </div>
                 <div>
-                  <label style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', color: 'var(--text-dim)', fontWeight: 500, fontSize: '0.9rem' }}>
-                    <span>TARGET WORDS</span>
-                    <span style={{ color: 'var(--text-main)' }}>{targetWords}</span>
+                  <label style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '0.1em' }}>
+                    <span>TARGET LENGTH (WORDS)</span>
+                    <span style={{ color: 'var(--primary)' }}>{targetWords}</span>
                   </label>
                   <input 
                     type="range" 
@@ -127,7 +117,7 @@ export default function Terminal({ onProcess, isProcessing }) {
                     value={targetWords}
                     onChange={(e) => setTargetWords(e.target.value)}
                     disabled={isProcessing}
-                    style={{ padding: 0, height: '4px', background: 'var(--border-light)', borderRadius: '2px', appearance: 'none' }}
+                    style={{ padding: 0, height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '3px', appearance: 'none' }}
                   />
                 </div>
               </div>
@@ -137,14 +127,14 @@ export default function Terminal({ onProcess, isProcessing }) {
           {activeTab === 'humanize' && (
             <motion.div 
               key="humanize"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              transition={{ duration: 0.2 }}
-              style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}
+              initial={{ opacity: 0, rotateX: -10 }}
+              animate={{ opacity: 1, rotateX: 0 }}
+              exit={{ opacity: 0, rotateX: 10 }}
+              transition={{ duration: 0.3 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}
             >
               <div>
-                <label style={{ display: 'block', marginBottom: '0.75rem', color: 'var(--text-dim)', fontWeight: 500, fontSize: '0.9rem' }}>RAW AI TEXT</label>
+                <label style={{ display: 'block', marginBottom: '1rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '0.1em' }}>RAW AI PAYLOAD</label>
                 <textarea 
                   value={pasteText}
                   onChange={(e) => setPasteText(e.target.value)}
@@ -154,52 +144,36 @@ export default function Terminal({ onProcess, isProcessing }) {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', marginBottom: '0.75rem', color: 'var(--text-dim)', fontWeight: 500, fontSize: '0.9rem' }}>STYLOMETRIC MODE</label>
-                <div style={{ position: 'relative', width: '50%' }}>
-                  <select value={mode} onChange={(e) => setMode(e.target.value)} disabled={isProcessing} style={{ appearance: 'none' }}>
-                    <option value="pulse">Pulse</option>
-                    <option value="narrative">Narrative</option>
-                    <option value="scholar">Scholar</option>
-                    <option value="academic">Academic</option>
-                  </select>
-                  <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-muted)' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                  </div>
-                </div>
+                <label style={{ display: 'block', marginBottom: '1rem', color: 'var(--text-muted)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '0.1em' }}>STYLOMETRIC PROFILE</label>
+                <select value={mode} onChange={(e) => setMode(e.target.value)} disabled={isProcessing} style={{ width: '50%' }}>
+                  <option value="pulse">Pulse</option>
+                  <option value="narrative">Narrative</option>
+                  <option value="scholar">Scholar</option>
+                  <option value="academic">Academic</option>
+                </select>
               </div>
-            </motion.div>
-          )}
-
-          {(activeTab === 'upload' || activeTab === 'tone') && (
-            <motion.div 
-              key="upload"
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 10 }}
-              transition={{ duration: 0.2 }}
-              style={{ padding: '4rem', textAlign: 'center', border: '1px dashed var(--border-light)', borderRadius: '8px', background: 'rgba(255,255,255,0.01)' }}
-            >
-              <UploadCloud size={32} color="var(--text-muted)" style={{ margin: '0 auto 1rem auto' }} />
-              <p style={{ color: 'var(--text-main)', fontWeight: 500 }}>Upload files</p>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.5rem' }}>Drag and drop functionality not implemented in UI demo</p>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
       {/* Action Bar */}
-      <div style={{ marginTop: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ color: 'var(--text-dim)', fontSize: '0.85rem' }}>
-          Powered by Entropy Engine v1.0
-        </span>
+      <div style={{ marginTop: '4rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: isProcessing ? 'var(--primary)' : 'var(--secondary)', boxShadow: `0 0 10px ${isProcessing ? 'var(--primary)' : 'var(--secondary)'}` }} />
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', letterSpacing: '0.1em' }}>
+            STATUS: {isProcessing ? 'INJECTING ENTROPY' : 'READY'}
+          </span>
+        </div>
+        
         <button 
-          className="btn-primary" 
+          className="btn-magnetic" 
           onClick={handleSubmit}
           disabled={isProcessing || (activeTab === 'generate' && !topic) || (activeTab === 'humanize' && !pasteText)}
         >
-          {isProcessing ? 'Processing...' : (activeTab === 'generate' ? 'Generate' : 'Process Text')}
+          {activeTab === 'generate' ? 'Generate' : 'Process Payload'}
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }

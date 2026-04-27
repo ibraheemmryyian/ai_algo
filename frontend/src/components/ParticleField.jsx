@@ -1,72 +1,93 @@
-import { useRef, useMemo } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import React, { useRef, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-function Particles({ count = 200 }) {
+export default function ParticleField({ count = 2000 }) {
   const mesh = useRef();
-  
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+
+  // Generate random positions and velocities
   const particles = useMemo(() => {
-    const positions = new Float32Array(count * 3);
-    const velocities = new Float32Array(count * 3);
-    
+    const temp = [];
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = (Math.random() - 0.5) * 30;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 15;
-      
-      velocities[i * 3] = (Math.random() - 0.5) * 0.005;
-      velocities[i * 3 + 1] = (Math.random() - 0.5) * 0.005;
-      velocities[i * 3 + 2] = (Math.random() - 0.5) * 0.005;
+      const x = (Math.random() - 0.5) * 40;
+      const y = (Math.random() - 0.5) * 40;
+      const z = (Math.random() - 0.5) * 40;
+      const vx = (Math.random() - 0.5) * 0.02;
+      const vy = (Math.random() - 0.5) * 0.02;
+      const vz = (Math.random() - 0.5) * 0.02;
+      const factor = Math.random() * 0.5 + 0.5;
+      temp.push({ x, y, z, vx, vy, vz, factor });
     }
-    return { positions, velocities };
+    return temp;
   }, [count]);
 
-  useFrame(() => {
-    if (!mesh.current) return;
-    const pos = mesh.current.geometry.attributes.position.array;
-    
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] += particles.velocities[i * 3];
-      pos[i * 3 + 1] += particles.velocities[i * 3 + 1];
-      pos[i * 3 + 2] += particles.velocities[i * 3 + 2];
+  useFrame((state) => {
+    // Mouse interaction
+    const mouseX = (state.pointer.x * state.viewport.width) / 2;
+    const mouseY = (state.pointer.y * state.viewport.height) / 2;
+
+    particles.forEach((particle, i) => {
+      // Basic drift
+      particle.x += particle.vx;
+      particle.y += particle.vy;
+      particle.z += particle.vz;
+
+      // Mouse repulsion
+      const dx = mouseX - particle.x;
+      const dy = mouseY - particle.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
       
-      // Wrap around boundaries
-      if (Math.abs(pos[i * 3]) > 15) particles.velocities[i * 3] *= -1;
-      if (Math.abs(pos[i * 3 + 1]) > 10) particles.velocities[i * 3 + 1] *= -1;
-      if (Math.abs(pos[i * 3 + 2]) > 7.5) particles.velocities[i * 3 + 2] *= -1;
-    }
+      if (dist < 5) {
+        const force = (5 - dist) * 0.02;
+        particle.vx -= (dx / dist) * force;
+        particle.vy -= (dy / dist) * force;
+      }
+
+      // Constrain to box (bounce)
+      if (Math.abs(particle.x) > 20) particle.vx *= -1;
+      if (Math.abs(particle.y) > 20) particle.vy *= -1;
+      if (Math.abs(particle.z) > 20) particle.vz *= -1;
+
+      // Apply friction
+      particle.vx *= 0.99;
+      particle.vy *= 0.99;
+      particle.vz *= 0.99;
+
+      // Ensure min velocity
+      if (Math.abs(particle.vx) < 0.001) particle.vx += (Math.random() - 0.5) * 0.01;
+      if (Math.abs(particle.vy) < 0.001) particle.vy += (Math.random() - 0.5) * 0.01;
+
+      // Update dummy and matrix
+      dummy.position.set(particle.x, particle.y, particle.z);
+      dummy.rotation.x += particle.vx * 2;
+      dummy.rotation.y += particle.vy * 2;
+      const s = Math.max(0.1, Math.sin(state.clock.elapsedTime * particle.factor) * 0.2 + 0.8);
+      dummy.scale.set(s, s, s);
+      dummy.updateMatrix();
+      
+      mesh.current.setMatrixAt(i, dummy.matrix);
+    });
     
-    mesh.current.geometry.attributes.position.needsUpdate = true;
+    mesh.current.instanceMatrix.needsUpdate = true;
+    
+    // Slowly rotate the entire field
+    mesh.current.rotation.y = state.clock.elapsedTime * 0.05;
+    mesh.current.rotation.x = state.clock.elapsedTime * 0.02;
   });
 
   return (
-    <points ref={mesh}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={particles.positions}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.03}
-        color="#4a5568"
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-        depthWrite={false}
+    <instancedMesh ref={mesh} args={[null, null, count]}>
+      <octahedronGeometry args={[0.08, 0]} />
+      <meshStandardMaterial 
+        color="#a855f7" 
+        emissive="#d946ef" 
+        emissiveIntensity={2} 
+        toneMapped={false} 
+        transparent 
+        opacity={0.8}
+        wireframe
       />
-    </points>
-  );
-}
-
-export default function ParticleField() {
-  return (
-    <div className="particle-canvas">
-      <Canvas camera={{ position: [0, 0, 8], fov: 50 }} dpr={[1, 1.5]}>
-        <Particles />
-      </Canvas>
-    </div>
+    </instancedMesh>
   );
 }
